@@ -28,13 +28,13 @@ jobs:
 
       - name: Start Gitpod Workspace
         run: |
-          workspace_url=$(gitpod workspace create "https://github.com/${{ github.repository }}")
+          workspace_url=$(gitpod workspace create "https://github.com/${{ github.repository }}" --format=plain)
           echo "WORKSPACE_URL=$workspace_url" >> $GITHUB_ENV
 
       - name: Wait for Workspace to be Ready
         run: |
-          gitpod workspace wait ${{ env.WORKSPACE_URL }}
+          gitpod workspace wait ${{ env.WORKSPACE_URL }} --format=plain
 
       - name: Execute Setup Script
         run: |
-          gitpod workspace exec ${{ env.WORKSPACE_URL }} "./setup_ollama.sh"
+          gitpod workspace exec ${{ env.WORKSPACE_URL }} --format=plain "./setup_ollama.sh"
