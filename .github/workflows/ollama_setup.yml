@@ -22,7 +22,7 @@ jobs:
 
       - name: Start Gitpod Workspace
         run: |
-          workspace_url=$(gitpod workspace create --repo=${{ github.repository }} --token=${{ secrets.GITPOD_TOKEN }})
+          workspace_url=$(gitpod workspace create "https://github.com/${{ github.repository }}" --token=${{ secrets.GITPOD_TOKEN }})
           echo "WORKSPACE_URL=$workspace_url" >> $GITHUB_ENV
 
       - name: Wait for Workspace to be Ready
