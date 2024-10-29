@@ -32,7 +32,8 @@ jobs:
           gitpod workspace create "https://github.com/${{ github.repository }}" || true
           echo "Listing workspaces..."
           gitpod workspace list
-          workspace_id=$(gitpod workspace list | grep "${{ github.repository }}" | awk '{print $1}')
+          # Get only the first (most recent) workspace ID
+          workspace_id=$(gitpod workspace list | grep "${{ github.repository }}" | head -n 1 | awk '{print $1}')
           echo "Workspace ID: $workspace_id"
           workspace_url="https://gitpod.io/#$workspace_id"
           echo "Workspace URL: $workspace_url"
