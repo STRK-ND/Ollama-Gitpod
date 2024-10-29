@@ -1,0 +1,36 @@
+name: Ollama Setup in Gitpod
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches: [ main ]
+    paths:
+      - 'setup_ollama.sh'
+
+jobs:
+  setup-ollama:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Gitpod CLI
+        run: |
+          curl -L https://gitpod.io/static/bin/gitpod-cli-linux-amd64 -o gitpod
+          chmod +x gitpod
+          sudo mv gitpod /usr/local/bin/
+
+      - name: Start Gitpod Workspace
+        run: |
+          workspace_url=$(gitpod workspace create --repo=${{ github.repository }} --token=${{ secrets.GITPOD_TOKEN }})
+          echo "WORKSPACE_URL=$workspace_url" >> $GITHUB_ENV
+
+      - name: Wait for Workspace to be Ready
+        run: |
+          gitpod workspace wait ${{ env.WORKSPACE_URL }} --token=${{ secrets.GITPOD_TOKEN }}
+
+      - name: Execute Setup Script
+        run: |
+          gitpod workspace exec ${{ env.WORKSPACE_URL }} \
+            --token=${{ secrets.GITPOD_TOKEN }} \
+            "./setup_ollama.sh"

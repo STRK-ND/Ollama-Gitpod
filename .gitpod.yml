@@ -1,0 +1,16 @@
+tasks:
+  - name: Setup Ollama
+    init: |
+      chmod +x setup_ollama.sh
+    command: ./setup_ollama.sh
+
+ports:
+  - port: 11434
+    onOpen: ignore
+    visibility: public
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true 
