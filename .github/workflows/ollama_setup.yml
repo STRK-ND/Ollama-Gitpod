@@ -28,8 +28,14 @@ jobs:
 
       - name: Start Gitpod Workspace
         run: |
-          workspace_output=$(gitpod workspace create "https://github.com/${{ github.repository }}")
-          workspace_url=$(echo "$workspace_output" | grep -o 'https://.*gitpod.io/.*')
+          echo "Creating workspace..."
+          gitpod workspace create "https://github.com/${{ github.repository }}" || true
+          echo "Listing workspaces..."
+          gitpod workspace list
+          workspace_id=$(gitpod workspace list | grep "${{ github.repository }}" | awk '{print $1}')
+          echo "Workspace ID: $workspace_id"
+          workspace_url="https://gitpod.io/#$workspace_id"
+          echo "Workspace URL: $workspace_url"
           echo "WORKSPACE_URL=$workspace_url" >> $GITHUB_ENV
 
       - name: Wait for Workspace to be Ready
