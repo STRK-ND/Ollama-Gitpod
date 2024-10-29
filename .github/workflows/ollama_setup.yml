@@ -20,21 +20,21 @@ jobs:
           chmod +x gitpod
           sudo mv gitpod /usr/local/bin/
 
-      - name: Start Gitpod Workspace
+      - name: Login to Gitpod
         env:
           GITPOD_TOKEN: ${{ secrets.GITPOD_TOKEN }}
+        run: |
+          gitpod login --token="$GITPOD_TOKEN"
+
+      - name: Start Gitpod Workspace
         run: |
           workspace_url=$(gitpod workspace create "https://github.com/${{ github.repository }}")
           echo "WORKSPACE_URL=$workspace_url" >> $GITHUB_ENV
 
       - name: Wait for Workspace to be Ready
-        env:
-          GITPOD_TOKEN: ${{ secrets.GITPOD_TOKEN }}
         run: |
           gitpod workspace wait ${{ env.WORKSPACE_URL }}
 
       - name: Execute Setup Script
-        env:
-          GITPOD_TOKEN: ${{ secrets.GITPOD_TOKEN }}
         run: |
           gitpod workspace exec ${{ env.WORKSPACE_URL }} "./setup_ollama.sh"
