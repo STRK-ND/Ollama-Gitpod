@@ -20,9 +20,52 @@ ollama serve &
 # Wait for server to start
 sleep 10
 
-# Step 4: Pull and install Llama2 model
-echo "🤖 Installing Llama2 model..."
-ollama pull llama2
+# Step 4: Model Selection Menu
+echo "📋 Available Models:"
+echo "1) llama2:3.1"
+echo "2) mistral-nemo"
+echo "3) deepseek-coder-v2"
+echo "4) codestral"
+echo "5) Install All Models"
+
+read -p "Select a model to install (1-5): " model_choice
+
+install_model() {
+    local model=$1
+    echo "🤖 Installing $model..."
+    ollama pull $model
+    if ollama list | grep -q "$model"; then
+        echo "✅ $model installed successfully"
+    else
+        echo "❌ Failed to install $model"
+    fi
+}
+
+case $model_choice in
+    1)
+        install_model "llama2:3.1"
+        ;;
+    2)
+        install_model "mistral-nemo"
+        ;;
+    3)
+        install_model "deepseek-coder-v2"
+        ;;
+    4)
+        install_model "codestral"
+        ;;
+    5)
+        echo "🔄 Installing all models..."
+        install_model "llama2:3.1"
+        install_model "mistral-nemo"
+        install_model "deepseek-coder-v2"
+        install_model "codestral"
+        ;;
+    *)
+        echo "❌ Invalid choice. Exiting..."
+        exit 1
+        ;;
+esac
 
 # Step 5: Install Cloudflared if not present
 echo "☁️ Setting up Cloudflare tunnel..."
