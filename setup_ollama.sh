@@ -2,8 +2,31 @@
 
 echo "🚀 Starting Ollama Setup..."
 
-# Step 1: Configure environment
+# Step 1: Configure environment and install dependencies
 echo "⚙️ Configuring environment..."
+# Install GPU detection tools and CUDA dependencies
+sudo apt-get update
+sudo apt-get install -y lshw nvidia-cuda-toolkit
+
+# Check for GPU and install appropriate drivers
+echo "🔍 Checking for GPU..."
+if sudo lshw -C display | grep -i nvidia > /dev/null; then
+    echo "NVIDIA GPU detected"
+    # Install NVIDIA drivers if not present
+    if ! command -v nvidia-smi &> /dev/null; then
+        echo "Installing NVIDIA drivers..."
+        sudo apt-get install -y nvidia-driver-525
+        sudo systemctl restart docker
+    fi
+elif sudo lshw -C display | grep -i amd > /dev/null; then
+    echo "AMD GPU detected"
+    # Install ROCm for AMD GPUs
+    echo "Installing ROCm drivers..."
+    sudo apt-get install -y rocm-opencl-runtime
+else
+    echo "No GPU detected, continuing with CPU-only setup"
+fi
+
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
     echo "Starting Docker service..."
@@ -22,7 +45,7 @@ sleep 10
 
 # Step 4: Model Selection Menu
 echo "📋 Available Models:"
-echo "1) llama2:3.1"
+echo "1) llama3.1"
 echo "2) mistral-nemo"
 echo "3) deepseek-coder-v2"
 echo "4) codestral"
@@ -43,7 +66,7 @@ install_model() {
 
 case $model_choice in
     1)
-        install_model "llama2:3.1"
+        install_model "llama3.1"
         ;;
     2)
         install_model "mistral-nemo"
@@ -56,7 +79,7 @@ case $model_choice in
         ;;
     5)
         echo "🔄 Installing all models..."
-        install_model "llama2:3.1"
+        install_model "llama3.1"
         install_model "mistral-nemo"
         install_model "deepseek-coder-v2"
         install_model "codestral"
