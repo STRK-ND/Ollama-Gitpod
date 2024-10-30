@@ -90,33 +90,16 @@ case $model_choice in
         ;;
 esac
 
-# Step 5: Install and configure Ngrok
-echo "🔄 Setting up Ngrok tunnel..."
-
-# Install Ngrok if not present
-if ! command -v ngrok &> /dev/null; then
-    echo "Installing Ngrok..."
-    curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-    echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-    sudo apt update && sudo apt install ngrok
+# Step 5: Install Cloudflared if not present
+echo "☁️ Setting up Cloudflare tunnel..."
+if ! command -v cloudflared &> /dev/null; then
+    curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+    sudo dpkg -i cloudflared.deb
+    rm cloudflared.deb
 fi
 
-# Load Ngrok auth token from .env file
-if [ -f .env ]; then
-    source .env
-    if [ -n "$NGROK_AUTH_TOKEN" ]; then
-        ngrok config add-authtoken "$NGROK_AUTH_TOKEN"
-    else
-        echo "❌ NGROK_AUTH_TOKEN not found in .env file"
-        exit 1
-    fi
-else
-    echo "❌ .env file not found"
-    exit 1
-fi
+# Start Cloudflare tunnel without group-specific permissions
+echo "🌐 Starting Cloudflare tunnel..."
+cloudflared tunnel --url http://localhost:11434 --http-host-header="localhost:11434" &
 
-# Start Ngrok tunnel with the correct configuration
-echo "🌐 Starting Ngrok tunnel..."
-ngrok http --log stderr 11434 --host-header "localhost:11434" --domain solid-hugely-gorilla.ngrok-free.app &
-
-echo "✅ Setup complete! Ollama is now running and accessible through Ngrok at https://solid-hugely-gorilla.ngrok-free.app"
+echo "✅ Setup complete! Ollama is now running and accessible through Cloudflare tunnel." 
